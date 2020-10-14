@@ -78,9 +78,12 @@ module.exports = function() {
 			let geometry = new THREE.BufferGeometry();
 			let vertices = [];
 			for (let i = 0; i < 10000; i ++ ) {
+				
 				vertices.push( THREE.MathUtils.randFloatSpread( 2000 ) ); // x
 				vertices.push( THREE.MathUtils.randFloatSpread( 2000 ) ); // y
 				vertices.push( THREE.MathUtils.randFloatSpread( 2000 ) ); // z
+				
+				// if any coordinates in range, pull out from vertices at i
 			}
 			geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
 			let particles = new THREE.Points( geometry, new THREE.PointsMaterial( { color: 0x888888 } ) );
@@ -318,7 +321,6 @@ module.exports = function() {
 				let title = gfx.labelLarge(titlePos, 'Distilling Whiskey Ratings', white);
 				
 				self.addLegend();
-				
 				self.labelAxis('Age', 'x', minAge, maxAge);
 				self.labelAxis('Rating', 'y', minRating, maxRating);
 				self.labelAxis('Price (USD)', 'z', minPrice, maxPrice, '$');

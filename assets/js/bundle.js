@@ -87,6 +87,7 @@ module.exports = function () {
         vertices.push(THREE.MathUtils.randFloatSpread(2000)); // y
 
         vertices.push(THREE.MathUtils.randFloatSpread(2000)); // z
+        // if any coordinates in range, pull out from vertices at i
       }
 
       geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
