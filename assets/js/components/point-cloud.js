@@ -36,7 +36,6 @@ module.exports = function() {
 	let interps = [d3.interpolateRainbow, d3.interpolateRgb('#450F66', '#B36002'), d3.interpolateRgb('white', 'red'), d3.interpolateSinebow, d3.interpolateYlOrRd, d3.interpolateYlGnBu,d3.interpolateRdPu, d3.interpolatePuBu, d3.interpolateGnBu, d3.interpolateBuPu, d3.interpolateCubehelixDefault, d3.interpolateCool, d3.interpolateWarm, d3.interpolateCividis, d3.interpolatePlasma, d3.interpolateMagma, d3.interpolateInferno, d3.interpolateViridis, d3.interpolateTurbo, d3.interpolatePurples, d3.interpolateReds, d3.interpolateOranges, d3.interpolateGreys, d3.interpolateGreens, d3.interpolateBlues, d3.interpolateSpectral, d3.interpolateRdYlBu, d3.interpolateRdBu, d3.interpolatePuOr, d3.interpolatePiYG, d3.interpolatePRGn]
 	let colorSchemes = [d3.schemeCategory10, d3.schemeAccent, d3.schemeDark2, d3.schemePaired, d3.schemePastel1, d3.schemePastel2, d3.schemeSet1, d3.schemeSet2, d3.schemeSet3, d3.schemeTableau10];
 
-	
 	return {
 		
 		init: function() {
@@ -267,18 +266,20 @@ module.exports = function() {
 
 				let maxRadius = 6.5;
 				
-				let name = d3.extent(dataset, function(d) { return +d['name']; });
-				let price = d3.extent(dataset, function(d) { return +d['price']; });
-				let age = d3.extent(dataset, function(d) { return +d['age']; });
+				let name = d3.extent(dataset, function(d) { return +d.name; });
+				let price = d3.extent(dataset, function(d) { return +d.price; });
+				let age = d3.extent(dataset, function(d) { return +d.age; });
 				let minRating = d3.min(dataset, function(d) { return +d.rating; });
 				let maxRating = d3.max(dataset, function(d) { return +d.rating; });
 				minRating = 70;
 				maxRating = 100;
 				let minPrice = d3.min(dataset, function(d) { return +d.price; });
 				let maxPrice = d3.max(dataset, function(d) { return +d.price; });
+				minPrice = 25;
+				maxPrice = 125;
 				let minAge = d3.min(dataset, function(d) { return +d.age; });
 				let maxAge = d3.max(dataset, function(d) { return +d.age; });
-				maxAge = 24;
+				maxAge = 25;
 
 				let xScale = d3.scaleLinear().domain(age).range([-settings.gridSize/2 + maxRadius, settings.gridSize/2 - maxRadius]);
 				let yScale = d3.scaleLinear().domain([minRating, maxRating]).range([maxRadius, settings.gridSize - maxRadius]);
@@ -308,10 +309,67 @@ module.exports = function() {
 					scene.add(sphere);
 				});
 				
+				// let titlePos = new Vector3(settings.gridSize/2 * 1.1, settings.gridSize * 1.1, -settings.gridSize/2 * 1.1);
+				// let title = gfx.labelLarge(new Vector3(0, 0, 0), 'Distilling Whiskey Ratings', white);
+				// title.quaternion.copy(camera.quaternion);
+				// title.position.set(titlePos.x, titlePos.y, titlePos.z);
+				
+				let titlePos = new Vector3(0, settings.gridSize + 6, -settings.gridSize/2);
+				let title = gfx.labelLarge(titlePos, 'Distilling Whiskey Ratings', white);
+				
+				self.addLegend();
+				
 				self.labelAxis('Age', 'x', minAge, maxAge);
 				self.labelAxis('Rating', 'y', minRating, maxRating);
 				self.labelAxis('Price (USD)', 'z', minPrice, maxPrice, '$');
 			});
+		},
+		
+		addLegend: function() {
+			
+			let zOffset = new Vector3(0, 0, 15);
+			
+			let usLabelPosition = new Vector3(settings.gridSize/2, 10, settings.gridSize/2).add(zOffset);
+			let usLabel = gfx.labelLarge(usLabelPosition, 'US', white, new Vector3(0, -Math.PI/2));
+			let textGeometry = usLabel.geometry;
+			textGeometry.computeBoundingBox();
+			let textWidth = textGeometry.boundingBox.max.z - textGeometry.boundingBox.min.z;
+			let translation = new Vector3(0, 0, 1).multiplyScalar(textWidth / 2);
+			usLabel.position.add(translation);
+			usLabelPosition.add(translation);
+			
+			let scotlandLabelPosition = new Vector3(settings.gridSize/2, 0, settings.gridSize/2).add(zOffset);
+			let scotlandLabel = gfx.labelLarge(scotlandLabelPosition, 'Scotland', white, new Vector3(0, -Math.PI/2));
+			textGeometry = scotlandLabel.geometry;
+			textGeometry.computeBoundingBox();
+			textWidth = textGeometry.boundingBox.max.z - textGeometry.boundingBox.min.z;
+			translation = new Vector3(0, 0, 1).multiplyScalar(textWidth / 2);
+			scotlandLabel.position.add(translation);
+			scotlandLabelPosition.add(translation);
+			
+			let radius = 3;
+			let geometry = new THREE.SphereGeometry(3, 15, 15);
+			let material = new THREE.MeshBasicMaterial({
+				color: 0xff0000,
+				transparent: true,
+				opacity: bubbleOpacity
+			});
+			
+			let scotlandSphere = new THREE.Mesh(geometry, material);
+			let spherePos = new Vector3(settings.gridSize/2, radius/2, settings.gridSize/2 + 10);
+			
+			scotlandSphere.position.set(spherePos.x, spherePos.y, spherePos.z);
+			scene.add(scotlandSphere);
+			
+			geometry = new THREE.SphereGeometry(3, 15, 15);
+			material = new THREE.MeshBasicMaterial({
+				color: 0x0000ff,
+				transparent: true,
+				opacity: bubbleOpacity
+			});
+			let usSphere = new THREE.Mesh(geometry, material);
+			usSphere.position.set(spherePos.x, spherePos.y + 10, spherePos.z);
+			scene.add(usSphere);
 		},
 		
 		labelAxis: function(label, axis, min, max, preUnit, postUnit) {
@@ -390,7 +448,6 @@ module.exports = function() {
 			
 			mesh.label = nameLabel;
 			mesh.line = lineMesh;
-			
 			lineMesh.visible = false;
 			nameLabel.visible = false;
 			

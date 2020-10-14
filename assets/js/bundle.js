@@ -254,13 +254,13 @@ module.exports = function () {
       d3.csv('./assets/data/whiskeys.csv', self.preprocessWhiskey).then(function (dataset) {
         var maxRadius = 6.5;
         var name = d3.extent(dataset, function (d) {
-          return +d['name'];
+          return +d.name;
         });
         var price = d3.extent(dataset, function (d) {
-          return +d['price'];
+          return +d.price;
         });
         var age = d3.extent(dataset, function (d) {
-          return +d['age'];
+          return +d.age;
         });
         var minRating = d3.min(dataset, function (d) {
           return +d.rating;
@@ -276,13 +276,15 @@ module.exports = function () {
         var maxPrice = d3.max(dataset, function (d) {
           return +d.price;
         });
+        minPrice = 25;
+        maxPrice = 125;
         var minAge = d3.min(dataset, function (d) {
           return +d.age;
         });
         var maxAge = d3.max(dataset, function (d) {
           return +d.age;
         });
-        maxAge = 24;
+        maxAge = 25;
         var xScale = d3.scaleLinear().domain(age).range([-settings.gridSize / 2 + maxRadius, settings.gridSize / 2 - maxRadius]);
         var yScale = d3.scaleLinear().domain([minRating, maxRating]).range([maxRadius, settings.gridSize - maxRadius]);
         var zScale = d3.scaleLinear().domain(price).range([-settings.gridSize / 2 + maxRadius, settings.gridSize / 2 - maxRadius]);
@@ -305,11 +307,57 @@ module.exports = function () {
           targetList.push(sphere);
           bubbles.push(sphere);
           scene.add(sphere);
-        });
+        }); // let titlePos = new Vector3(settings.gridSize/2 * 1.1, settings.gridSize * 1.1, -settings.gridSize/2 * 1.1);
+        // let title = gfx.labelLarge(new Vector3(0, 0, 0), 'Distilling Whiskey Ratings', white);
+        // title.quaternion.copy(camera.quaternion);
+        // title.position.set(titlePos.x, titlePos.y, titlePos.z);
+
+        var titlePos = new Vector3(0, settings.gridSize + 6, -settings.gridSize / 2);
+        var title = gfx.labelLarge(titlePos, 'Distilling Whiskey Ratings', white);
+        self.addLegend();
         self.labelAxis('Age', 'x', minAge, maxAge);
         self.labelAxis('Rating', 'y', minRating, maxRating);
         self.labelAxis('Price (USD)', 'z', minPrice, maxPrice, '$');
       });
+    },
+    addLegend: function addLegend() {
+      var zOffset = new Vector3(0, 0, 15);
+      var usLabelPosition = new Vector3(settings.gridSize / 2, 10, settings.gridSize / 2).add(zOffset);
+      var usLabel = gfx.labelLarge(usLabelPosition, 'US', white, new Vector3(0, -Math.PI / 2));
+      var textGeometry = usLabel.geometry;
+      textGeometry.computeBoundingBox();
+      var textWidth = textGeometry.boundingBox.max.z - textGeometry.boundingBox.min.z;
+      var translation = new Vector3(0, 0, 1).multiplyScalar(textWidth / 2);
+      usLabel.position.add(translation);
+      usLabelPosition.add(translation);
+      var scotlandLabelPosition = new Vector3(settings.gridSize / 2, 0, settings.gridSize / 2).add(zOffset);
+      var scotlandLabel = gfx.labelLarge(scotlandLabelPosition, 'Scotland', white, new Vector3(0, -Math.PI / 2));
+      textGeometry = scotlandLabel.geometry;
+      textGeometry.computeBoundingBox();
+      textWidth = textGeometry.boundingBox.max.z - textGeometry.boundingBox.min.z;
+      translation = new Vector3(0, 0, 1).multiplyScalar(textWidth / 2);
+      scotlandLabel.position.add(translation);
+      scotlandLabelPosition.add(translation);
+      var radius = 3;
+      var geometry = new THREE.SphereGeometry(3, 15, 15);
+      var material = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        transparent: true,
+        opacity: bubbleOpacity
+      });
+      var scotlandSphere = new THREE.Mesh(geometry, material);
+      var spherePos = new Vector3(settings.gridSize / 2, radius / 2, settings.gridSize / 2 + 10);
+      scotlandSphere.position.set(spherePos.x, spherePos.y, spherePos.z);
+      scene.add(scotlandSphere);
+      geometry = new THREE.SphereGeometry(3, 15, 15);
+      material = new THREE.MeshBasicMaterial({
+        color: 0x0000ff,
+        transparent: true,
+        opacity: bubbleOpacity
+      });
+      var usSphere = new THREE.Mesh(geometry, material);
+      usSphere.position.set(spherePos.x, spherePos.y + 10, spherePos.z);
+      scene.add(usSphere);
     },
     labelAxis: function labelAxis(label, axis, min, max, preUnit, postUnit) {
       preUnit = preUnit || '';
