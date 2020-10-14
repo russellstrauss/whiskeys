@@ -244,9 +244,15 @@ const { Vector3 } = require("three");
 					let textGeometry = new THREE.TextGeometry(label, self.appSettings.font.largeFont);
 					let textMaterial = new THREE.MeshBasicMaterial({ color: color });
 					let mesh = new THREE.Mesh(textGeometry, textMaterial);
+					
+					textGeometry.computeBoundingBox(); // center align text
+					let translation = new Vector3(-1, 0, 0).multiplyScalar((textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x) / 2);
+					translation.applyAxisAngle(new Vector3(0, 1, 0), rotation.y);
+					
 					textGeometry.rotateX(rotation.x); textGeometry.rotateY(rotation.y); textGeometry.rotateZ(rotation.z);
-					textGeometry.translate(pt.x, pt.y, pt.z);
+					textGeometry.translate(pt.x + translation.x, pt.y + translation.y, pt.z + translation.z);
 					scene.add(mesh);
+					return mesh;
 				}
 			},
 
