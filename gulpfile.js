@@ -1,91 +1,102 @@
-var gulp = require('gulp');
-var sass = require('gulp-sass');
-var watch = require('gulp-watch');
-var sourcemaps = require('gulp-sourcemaps');
-var browserify = require('browserify');
-var rename = require('gulp-rename');
-var source = require('vinyl-source-stream'); // required to dest() for browserify
-var browserSync = require('browser-sync').create();
-var concat = require('gulp-concat');
-var notifier = require('node-notifier');
-var jshint = require('gulp-jshint');
-var stylish = require('jshint-stylish');
-var babel = require('gulp-babel');
+const { src, dest, watch, series, parallel } = require('gulp');
+const sass = require('gulp-sass')(require('sass'));
+const sourcemaps = require('gulp-sourcemaps');
+const browserify = require('browserify');
+const rename = require('gulp-rename');
+const source = require('vinyl-source-stream');
+const browserSync = require('browser-sync').create();
+const concat = require('gulp-concat');
+const notifier = require('node-notifier');
+const jshint = require('gulp-jshint');
+const stylish = require('jshint-stylish');
+const babel = require('gulp-babel');
 
-gulp.task('sass', function () {
-	return gulp.src('./assets/sass/main.scss')
-	.pipe(sourcemaps.init())
-		.pipe(sass().on('error', sass.logError)) // .on('error', sass.logError) prevents gulp from crashing when saving a typo or syntax error
-	.pipe(sourcemaps.write())
-	.pipe(gulp.dest('./assets/sass'))
-	.pipe(browserSync.stream()); // causes injection of styles on save
-});
-
-gulp.task('sync', ['sass'], function() {
-	browserSync.init({
-		open: true,
-		server: {
-			baseDir: "./",
-		}
-	});
-});
-
-var vendors = {
-	merge: [
-		//'./assets/vendors/js/three.js'
-	]
+const paths = {
+  sass: './assets/sass/**/*.scss',
+  sassEntry: './assets/sass/main.scss',
+  sassDest: './assets/sass',
+  jsEntry: './assets/js/main.js',
+  jsDest: './assets/js',
+  html: './index.html',
+  vendorSrc: [], // Add vendor paths here
+  vendorDest: './assets/vendors/js/',
 };
 
-gulp.task('vendors', function() {
-	return gulp.src(vendors.merge)
-		.pipe(concat('vendors.js'))
-		.pipe(gulp.dest('./assets/vendors/js/'));
-});
+// Compile Sass with sourcemaps and stream to browser
+function compileSass() {
+  return src(paths.sassEntry)
+    .pipe(sourcemaps.init())
+    .pipe(sass().on('error', sass.logError))
+    .pipe(sourcemaps.write())
+    .pipe(dest(paths.sassDest))
+    .pipe(browserSync.stream());
+}
 
-gulp.task('javascript', function() {
-		
-	var bundleStream = browserify('./assets/js/main.js')
-		.transform("babelify", {presets: ["@babel/preset-env"]})
-		.bundle()
-		.on('error', function(err) {
-			console.log(err.stack);
-			notifier.notify({
-				'title': 'Browserify Compilation Error',
-				'message': err.message
-			});
-			this.emit('end');
-		});
+// Bundle JavaScript with Browserify and Babel
+function bundleJS() {
+  return browserify(paths.jsEntry)
+    .transform('babelify', { presets: ['@babel/preset-env'] })
+    .bundle()
+    .on('error', function (err) {
+      console.error(err.stack);
+      notifier.notify({
+        title: 'Browserify Compilation Error',
+        message: err.message,
+      });
+      this.emit('end');
+    })
+    .pipe(source('main.js'))
+    .pipe(rename('bundle.js'))
+    .pipe(dest(paths.jsDest))
+    .pipe(browserSync.stream());
+}
 
-	return bundleStream
-		.pipe(source('main.js'))
-		.pipe(rename('bundle.js'))
-		.pipe(gulp.dest('./assets/js/'))
-		.pipe(browserSync.stream());
-});
+// Validate JS with JSHint
+function validateJS() {
+  return src(['./assets/js/**/*.js', '!./assets/js/bundle.js'])
+    .pipe(jshint())
+    .pipe(jshint.reporter(stylish));
+}
 
-gulp.task('validateJS', function() {
-	return gulp.src(['./assets/js/**/*.js', '!./assets/js/bundle.js'])
-		.pipe(jshint())
-		.pipe(jshint.reporter(stylish));
-});
+// Copy vendor scripts
+function vendors() {
+  if (paths.vendorSrc.length === 0) {
+    return Promise.resolve();
+  }
+  return src(paths.vendorSrc)
+    .pipe(concat('vendors.js'))
+    .pipe(dest(paths.vendorDest));
+}
 
-gulp.task('HTML', function() {
-	return gulp.src(['./index.html'])
-		.pipe(browserSync.stream()); // causes injection of html changes on save
-});
+// Reload HTML
+function reloadHTML() {
+  return src(paths.html).pipe(browserSync.stream());
+}
 
-gulp.task('watch', function() {
+// Serve and watch files
+function serve() {
+  browserSync.init({
+    open: true,
+    server: {
+      baseDir: './',
+    },
+  });
 
-	watch('./assets/sass/**/*.scss', function() {
-		gulp.start('sass');
-	});
-	watch(['./assets/js/**/*.js', '!./assets/js/bundle.js'], function() {
-		gulp.start('javascript');
-	});
-	watch('./**/*.html', function() {
-		gulp.start('HTML');
-	});	
-});
+  watch(paths.sass, compileSass);
+  watch(['./assets/js/**/*.js', '!./assets/js/bundle.js'], series(bundleJS));
+  watch('./**/*.html', reloadHTML);
+}
 
-// Default Task
-gulp.task('default', ['vendors', 'javascript', 'sass', 'watch', 'sync']);
+// Define tasks
+exports.sass = compileSass;
+exports.javascript = bundleJS;
+exports.validateJS = validateJS;
+exports.vendors = vendors;
+exports.HTML = reloadHTML;
+exports.watch = serve;
+
+// Default task
+exports.default = series(
+  parallel(vendors, bundleJS, compileSass),
+  serve
+);

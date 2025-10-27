@@ -2,8 +2,7 @@
 "use strict";
 
 var _require = require('three'),
-    Vector3 = _require.Vector3;
-
+  Vector3 = _require.Vector3;
 module.exports = function () {
   var message = document.querySelector('.message');
   var pastData;
@@ -26,20 +25,18 @@ module.exports = function () {
     }
   };
   var uniqueCountries = []; // whiskey
-
   var colors = ['red', 'blue', 'green', 'white', 'purple', 'pink', 'orange', '#710C96']; // whiskey
-
   var bubbles = [],
-      clickedLabels = [],
-      dataPointLabels = [],
-      bubbleOpacity = .15;
+    clickedLabels = [],
+    dataPointLabels = [],
+    bubbleOpacity = .15;
   var renderer, scene, camera, controls, floor;
   var targetList = [];
   var black = new THREE.Color('black'),
-      white = new THREE.Color('white'),
-      green = new THREE.Color(0x00ff00),
-      red = new THREE.Color('#ED0000'),
-      blue = new THREE.Color(0x0000ff);
+    white = new THREE.Color('white'),
+    green = new THREE.Color(0x00ff00),
+    red = new THREE.Color('#ED0000'),
+    blue = new THREE.Color(0x0000ff);
   var stats = new Stats();
   var bottomLeft, nearestCorner;
   var interps = [d3.interpolateRainbow, d3.interpolateRgb('#450F66', '#B36002'), d3.interpolateRgb('white', 'red'), d3.interpolateSinebow, d3.interpolateYlOrRd, d3.interpolateYlGnBu, d3.interpolateRdPu, d3.interpolatePuBu, d3.interpolateGnBu, d3.interpolateBuPu, d3.interpolateCubehelixDefault, d3.interpolateCool, d3.interpolateWarm, d3.interpolateCividis, d3.interpolatePlasma, d3.interpolateMagma, d3.interpolateInferno, d3.interpolateViridis, d3.interpolateTurbo, d3.interpolatePurples, d3.interpolateReds, d3.interpolateOranges, d3.interpolateGreys, d3.interpolateGreens, d3.interpolateBlues, d3.interpolateSpectral, d3.interpolateRdYlBu, d3.interpolateRdBu, d3.interpolatePuOr, d3.interpolatePiYG, d3.interpolatePRGn];
@@ -62,15 +59,13 @@ module.exports = function () {
       self.addStars();
       self.setUpButtons();
       self.bubbleChart();
-
-      var animate = function animate() {
-        requestAnimationFrame(animate);
+      var _animate = function animate() {
+        requestAnimationFrame(_animate);
         renderer.render(scene, camera);
         controls.update();
         self.everyFrame();
       };
-
-      animate();
+      _animate();
     },
     everyFrame: function everyFrame() {
       dataPointLabels.forEach(function (label) {
@@ -80,16 +75,13 @@ module.exports = function () {
     addStars: function addStars() {
       var geometry = new THREE.BufferGeometry();
       var vertices = [];
-
       for (var i = 0; i < 10000; i++) {
         vertices.push(THREE.MathUtils.randFloatSpread(2000)); // x
-
         vertices.push(THREE.MathUtils.randFloatSpread(2000)); // y
-
         vertices.push(THREE.MathUtils.randFloatSpread(2000)); // z
+
         // if any coordinates in range, pull out from vertices at i
       }
-
       geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
       var particles = new THREE.Points(geometry, new THREE.PointsMaterial({
         color: 0x888888
@@ -98,7 +90,6 @@ module.exports = function () {
     },
     reset: function reset() {
       message.textContent = '';
-
       for (var i = scene.children.length - 1; i >= 0; i--) {
         var obj = scene.children[i];
       }
@@ -110,11 +101,13 @@ module.exports = function () {
       fontPath = 'assets/vendors/js/three.js/examples/fonts/helvetiker_regular.typeface.json';
       loader.load(fontPath, function (font) {
         // success event
+
         gfx.appSettings.font.smallFont.font = font;
         gfx.appSettings.font.largeFont.font = font;
         self.begin();
         if (gfx.appSettings.axesHelper.activateAxesHelper) gfx.labelAxesHelper();
-      }, function (event) {}, // in progress event
+      }, function (event) {},
+      // in progress event
       function (event) {
         // error event
         gfx.appSettings.font.enable = false;
@@ -132,44 +125,35 @@ module.exports = function () {
         var r = 82;
         var space = 32;
         var a = 65;
-
         if (event.keyCode === one) {
           self.reset();
         }
-
         if (event.keyCode === two) {
           self.reset();
         }
-
         if (event.keyCode === three) {
           self.reset();
         }
-
         if (event.keyCode === four) {
           self.reset();
         }
-
         if (event.keyCode === r) {
           self.reset();
         }
-
         if (event.keyCode === space) {
           console.log(camera);
         }
-
         if (event.keyCode === a) {
           gfx.toggleAxesHelper();
         }
       });
       window.russells_magical_mouse = new THREE.Vector2();
-
       var onMouseMove = function onMouseMove(event) {
         window.russells_magical_mouse.x = (event.clientX - renderer.domElement.offsetLeft) / renderer.domElement.width * 2 - 1;
         window.russells_magical_mouse.y = -((event.clientY - renderer.domElement.offsetTop) / renderer.domElement.height) * 2 + 1;
         var hoveredItems = gfx.intersects(event, camera, targetList);
         self.handleHovers(hoveredItems);
       };
-
       window.addEventListener('mousemove', onMouseMove, false);
       document.querySelector('canvas').addEventListener('click', function (event) {
         var clickedItems = gfx.intersects(event, camera, targetList);
@@ -191,7 +175,6 @@ module.exports = function () {
     handleHovers: function handleHovers(hoveredItems) {
       var self = this;
       self.hideAllBubbleLabels();
-
       if (hoveredItems) {
         self.showLabel(hoveredItems[0].object);
       }
@@ -209,9 +192,9 @@ module.exports = function () {
     handleClicks: function handleClicks(clickedItems) {
       var self = this;
       var label;
-
       if (clickedItems) {
-        self.showLabel(clickedItems[0].object); // clickedLabels.push(label[0], label[1]);
+        self.showLabel(clickedItems[0].object);
+        // clickedLabels.push(label[0], label[1]);
       } else {
         self.hideClickedBubbleLabels();
       }
@@ -246,7 +229,8 @@ module.exports = function () {
       gfx.drawLineFromPoints(bottomLeft, new Vector3(-size / 2, size, -size / 2), white, .5);
       gfx.drawLineFromPoints(bottomLeft, new Vector3(-size / 2, 0, size / 2), white, .5);
       gfx.drawLineFromPoints(new Vector3(-size / 2, 0, size / 2), new Vector3(size / 2, 0, size / 2), white, .5);
-      scene.background = worldColor; //scene.fog = new THREE.FogExp2(new THREE.Color('black'), 0.002);
+      scene.background = worldColor;
+      //scene.fog = new THREE.FogExp2(new THREE.Color('black'), 0.002);
 
       return plane;
     },
@@ -289,7 +273,8 @@ module.exports = function () {
         var xScale = d3.scaleLinear().domain(age).range([-settings.gridSize / 2 + maxRadius, settings.gridSize / 2 - maxRadius]);
         var yScale = d3.scaleLinear().domain([minRating, maxRating]).range([maxRadius, settings.gridSize - maxRadius]);
         var zScale = d3.scaleLinear().domain(price).range([-settings.gridSize / 2 + maxRadius, settings.gridSize / 2 - maxRadius]);
-        var radiusScale = d3.scaleLinear().domain(price).range([.25, maxRadius]); // let colorScale = d3.scaleQuantize().domain(country).range(colors);
+        var radiusScale = d3.scaleLinear().domain(price).range([.25, maxRadius]);
+        // let colorScale = d3.scaleQuantize().domain(country).range(colors);
 
         var color = null;
         dataset.forEach(function (row, index) {
@@ -308,7 +293,9 @@ module.exports = function () {
           targetList.push(sphere);
           bubbles.push(sphere);
           scene.add(sphere);
-        }); // let titlePos = new Vector3(settings.gridSize/2 * 1.1, settings.gridSize * 1.1, -settings.gridSize/2 * 1.1);
+        });
+
+        // let titlePos = new Vector3(settings.gridSize/2 * 1.1, settings.gridSize * 1.1, -settings.gridSize/2 * 1.1);
         // let title = gfx.labelLarge(new Vector3(0, 0, 0), 'Distilling Whiskey Ratings', white);
         // title.quaternion.copy(camera.quaternion);
         // title.position.set(titlePos.x, titlePos.y, titlePos.z);
@@ -369,40 +356,30 @@ module.exports = function () {
       var interval = length / count;
       var tickLength = settings.axes.tickLength;
       var tick = new Vector3(-tickLength, 0, 0),
-          tickRight = new Vector3(0, 0, tickLength);
+        tickRight = new Vector3(0, 0, tickLength);
       var axisLabelOffset = -6;
       var charWidth = settings.gridSize / 50;
-
       if (axis === 'x') {
         for (var i = 0; i < count + 1; i += 2) {
           var tickOrigin = gfx.movePoint(nearestCorner, new Vector3(i * interval, 0, 0));
           gfx.drawLine(tickOrigin, tickRight);
-
           var _label = (max - min) / 20 * i + min;
-
           if (_label > 1000000) _label = _label.toExponential();
           _label = Math.round(_label).toString();
           var offset = new Vector3(-.6, -1, interval / 100 * _label.length + 2);
           gfx.labelPoint(gfx.movePoint(tickOrigin, offset), _label, settings.axes.color, new Vector3(0, 0, 0));
         }
-
         gfx.labelLarge(new Vector3(0, axisLabelOffset, settings.gridSize / 2 - axisLabelOffset), label, settings.axes.color);
       } else if (axis === 'y') {
         for (var _i = 0; _i < count + 1; _i += 2) {
           var _tickOrigin = gfx.movePoint(bottomLeft, new Vector3(0, _i * interval, 0));
-
           gfx.drawLine(_tickOrigin, tick);
-
           var _label2 = (max - min) / 20 * _i + min;
-
           if (_label2 > 1000000) _label2 = _label2.toExponential();
           _label2 = Math.round(_label2).toString();
-
           var _offset = new Vector3(-(interval / 4) * (_label2.length + 1), -1, 0);
-
           gfx.labelPoint(gfx.movePoint(_tickOrigin, _offset), _label2, settings.axes.color);
         }
-
         var yAxisLabel = gfx.labelLarge(new Vector3(-settings.gridSize / 2, settings.gridSize / 2, -settings.gridSize / 2), label, 0xffffff);
         var textGeometry = yAxisLabel.geometry;
         textGeometry.computeBoundingBox();
@@ -411,19 +388,13 @@ module.exports = function () {
       } else if (axis === 'z') {
         for (var _i2 = 2; _i2 < count + 1; _i2 += 2) {
           var _tickOrigin2 = gfx.movePoint(bottomLeft, new Vector3(0, 0, _i2 * interval));
-
           gfx.drawLine(_tickOrigin2, tick);
-
           var _label3 = (max - min) / 20 * _i2 + min;
-
           if (_label3 > 1000000) _label3 = _label3.toExponential();
           _label3 = preUnit + Math.round(_label3).toString() + postUnit;
-
           var _offset2 = new Vector3(-(interval / 8) * (_label3.length + 1) - 3, -1, 0);
-
           gfx.labelPoint(gfx.movePoint(_tickOrigin2, _offset2), _label3, settings.axes.color);
         }
-
         gfx.labelLarge(new Vector3(-settings.gridSize / 2 + axisLabelOffset, axisLabelOffset, 0), label, settings.axes.color, new Vector3(0, -Math.PI / 2, 0));
       }
     },
@@ -436,7 +407,6 @@ module.exports = function () {
       var nameLabel = gfx.labelPoint(new Vector3(0, 0, 0), mesh.label, settings.axes.color);
       nameLabel.position.set(labelOrigin.x, labelOrigin.y, labelOrigin.z);
       nameLabel.geometry.computeBoundingBox(); // center align text
-
       var translation = new Vector3(-1, 0, 0).multiplyScalar((nameLabel.geometry.boundingBox.max.x - nameLabel.geometry.boundingBox.min.x) / 2).add(new Vector3(0, padding * 2 + mesh.geometry.parameters.radius, 0));
       nameLabel.geometry.translate(translation.x, translation.y, translation.z);
       labelOrigin.add(new Vector3(0, translation.y, 0));
@@ -448,7 +418,6 @@ module.exports = function () {
     },
     preprocessWhiskey: function preprocessWhiskey(row) {
       if (!uniqueCountries.includes(row.Country)) uniqueCountries.push(row.Country);
-
       if (row.Name !== '*' && row.Rating !== '*' && row.Country !== '*' && row.Category !== '*' && row.Age !== '*' && row.ABV !== '*' && row.Brand !== '*' && row.Price !== '*' && parseInt(row.Price) < 125 && parseInt(row.Age) < 25 && (row.Country === 'USA' || row.Country === 'Scotland')) {
         return {
           name: row.Name,
@@ -469,12 +438,10 @@ module.exports = function () {
 "use strict";
 
 var _require = require("three"),
-    Vector3 = _require.Vector3;
-
+  Vector3 = _require.Vector3;
 (function () {
   var appSettings;
   var scene;
-
   window.gfx = function () {
     return {
       appSettings: {
@@ -511,7 +478,6 @@ var _require = require("three"),
       },
       toggleAxesHelper: function toggleAxesHelper() {
         var self = this;
-
         if (gfx.appSettings.axesHelper.active) {
           scene.remove(gfx.appSettings.axesHelper.axes);
           gfx.appSettings.axesHelper.labels.forEach(function (label) {
@@ -520,7 +486,6 @@ var _require = require("three"),
         } else {
           self.activateAxesHelper();
         }
-
         gfx.appSettings.axesHelper.active = !gfx.appSettings.axesHelper.active;
       },
       activateLightHelpers: function activateLightHelpers(lights) {
@@ -544,7 +509,6 @@ var _require = require("three"),
         var midpoint = new THREE.Vector3(0, 0, 0);
         geometry.vertices.forEach(function (vertex) {
           midpoint.x += vertex.x - .001; // very slight offset for the case where polygon is a quadrilateral so that not all angles are equal
-
           midpoint.y += vertex.y;
           midpoint.z += vertex.z - .001;
         });
@@ -593,6 +557,7 @@ var _require = require("three"),
       },
       isRightTurn: function isRightTurn(startingPoint, turningPoint, endingPoint) {
         // This might only work if vectors are flat on the ground since I am using y-component to determine sign
+
         var segment1 = gfx.createVector(startingPoint, turningPoint);
         var segment2 = gfx.createVector(turningPoint, endingPoint);
         var result = new THREE.Vector3();
@@ -602,11 +567,9 @@ var _require = require("three"),
       setUpScene: function setUpScene() {
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0xf0f0f0);
-
         if (gfx.appSettings.axesHelper.active) {
           gfx.activateAxesHelper();
         }
-
         return scene;
       },
       setUpRenderer: function setUpRenderer(renderer) {
@@ -643,7 +606,6 @@ var _require = require("three"),
       },
       showVector: function showVector(vector, origin, color) {
         var arrowHelper;
-
         if (vector.length() > 0) {
           color = color || 0xff0000;
           arrowHelper = new THREE.ArrowHelper(vector, origin, vector.length(), color);
@@ -651,22 +613,18 @@ var _require = require("three"),
         } else {
           gfx.showPoint(origin, color);
         }
-
         return arrowHelper;
       },
       updateArrow: function updateArrow(arrow, origin, newDirection) {
         var direction = gfx.createVector(origin, newDirection);
         arrow.setDirection(direction);
         arrow.setLength(direction.length()); // Why?
-
         return arrow;
       },
-
       /* 	Inputs: pt - point in space to label, in the form of object with x, y, and z properties; label - text content for label; color - optional */
       labelPoint: function labelPoint(pt, label, color, rotation) {
         rotation = rotation || new THREE.Vector3(0, 0, 0);
         var self = this;
-
         if (gfx.appSettings.font.enable) {
           color = color || 0xff0000;
           var textGeometry = new THREE.TextGeometry(label, self.appSettings.font.smallFont);
@@ -685,7 +643,6 @@ var _require = require("three"),
       labelLarge: function labelLarge(pt, label, color, rotation) {
         rotation = rotation || new THREE.Vector3(0, 0, 0);
         var self = this;
-
         if (gfx.appSettings.font.enable) {
           color = color || 0xff0000;
           var textGeometry = new THREE.TextGeometry(label, self.appSettings.font.largeFont);
@@ -694,7 +651,6 @@ var _require = require("three"),
           });
           var mesh = new THREE.Mesh(textGeometry, textMaterial);
           textGeometry.computeBoundingBox(); // center align text
-
           var translation = new Vector3(-1, 0, 0).multiplyScalar((textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x) / 2);
           translation.applyAxisAngle(new Vector3(0, 1, 0), rotation.y);
           textGeometry.rotateX(rotation.x);
@@ -731,7 +687,6 @@ var _require = require("three"),
           linecap: 'round',
           //ignored by WebGLRenderer
           linejoin: 'round' //ignored by WebGLRenderer
-
         });
         var geometry = new THREE.Geometry();
         geometry.vertices.push(new THREE.Vector3(pt1.x, pt1.y, pt1.z));
@@ -741,12 +696,12 @@ var _require = require("three"),
       },
       getDistance: function getDistance(pt1, pt2) {
         // create point class?
+
         var squirt = Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2) + Math.pow(pt2.z - pt1.z, 2);
         return Math.sqrt(squirt);
       },
       labelAxesHelper: function labelAxesHelper() {
         var self = this;
-
         if (gfx.appSettings.font.enable) {
           gfx.appSettings.axesHelper.labels = [];
           var textGeometry = new THREE.TextGeometry('Y', gfx.appSettings.font.largeFont);
@@ -789,12 +744,10 @@ var _require = require("three"),
       },
       resetScene: function resetScene(scope) {
         scope.settings.stepCount = 0;
-
         for (var i = scene.children.length - 1; i >= 0; i--) {
           var obj = scene.children[i];
           scene.remove(obj);
         }
-
         gfx.addFloor();
         scope.addTetrahedron();
         gfx.setUpLights();
@@ -804,7 +757,6 @@ var _require = require("three"),
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.target.set(0, 0, 0);
         controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-
         controls.dampingFactor = 0.05;
         controls.zoomSpeed = 2;
         controls.enablePan = !utils.mobile();
@@ -830,7 +782,6 @@ var _require = require("three"),
         light2.position.set(0, 2, -8);
         scene.add(light2);
         lights.push(light2);
-
         if (gfx.appSettings.activateLightHelpers) {
           gfx.activateLightHelpers(lights);
         }
@@ -851,15 +802,13 @@ var _require = require("three"),
       getCentroid: function getCentroid(geometry) {
         var result = new THREE.Vector3();
         var x = 0,
-            y = 0,
-            z = 0;
-
+          y = 0,
+          z = 0;
         for (var i = 0; i < geometry.vertices.length; i++) {
           x += geometry.vertices[i].x;
           y += geometry.vertices[i].y;
           z += geometry.vertices[i].z;
         }
-
         result.x = x / 3;
         result.y = y / 3;
         result.z = z / 3;
@@ -872,11 +821,9 @@ var _require = require("three"),
         vertices.forEach(function (vertex) {
           geometry.vertices.push(vertex);
         });
-
         for (var i = 0; i < vertices.length; i++) {
           angleSum += gfx.calculateAngle(geometry.vertices[i], pt, gfx.nextVertex(geometry.vertices[i], geometry));
         }
-
         return angleSum === Math.PI * 2;
       },
       nextVertex: function nextVertex(currentVertex, geometry) {
@@ -901,7 +848,6 @@ var _require = require("three"),
         var raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(window.russells_magical_mouse, camera);
         var intersects = raycaster.intersectObjects(targetList);
-
         if (intersects.length > 0) {
           return intersects;
         } else {
@@ -910,7 +856,6 @@ var _require = require("three"),
       }
     };
   }();
-
   module.exports = window.gfx;
 })();
 
@@ -918,11 +863,8 @@ var _require = require("three"),
 "use strict";
 
 var PointCloud = require('./components/point-cloud.js');
-
 var Utilities = require('./utils.js');
-
 var Graphics = require('./graphics.js');
-
 (function () {
   document.addEventListener('DOMContentLoaded', function () {
     PointCloud().init();
@@ -934,7 +876,6 @@ var Graphics = require('./graphics.js');
 
 (function () {
   var appSettings;
-
   window.utils = function () {
     return {
       appSettings: {
@@ -962,20 +903,17 @@ var Graphics = require('./graphics.js');
         var timeout;
         return function () {
           var context = this,
-              args = arguments;
-
+            args = arguments;
           var later = function later() {
             timeout = null;
             if (!immediate) func.apply(context, args);
           };
-
           var callNow = immediate && !timeout;
           clearTimeout(timeout);
           timeout = setTimeout(later, wait);
           if (callNow) func.apply(context, args);
         };
       },
-
       /* Purpose: Detect if any of the element is currently within the viewport */
       anyOnScreen: function anyOnScreen(element) {
         var win = $(window);
@@ -990,7 +928,6 @@ var Graphics = require('./graphics.js');
         bounds.bottom = bounds.top + element.outerHeight();
         return !(viewport.right < bounds.left || viewport.left > bounds.right || viewport.bottom < bounds.top || viewport.top > bounds.bottom);
       },
-
       /* Purpose: Detect if an element is vertically on screen; if the top and bottom of the element are both within the viewport. */
       allOnScreen: function allOnScreen(element) {
         var win = $(window);
@@ -1008,7 +945,6 @@ var Graphics = require('./graphics.js');
       secondsToMilliseconds: function secondsToMilliseconds(seconds) {
         return seconds * 1000;
       },
-
       /*
       * Purpose: This method allows you to temporarily disable an an element's transition so you can modify its proprties without having it animate those changing properties.
       * Params:
@@ -1036,6 +972,7 @@ var Graphics = require('./graphics.js');
       },
       next: function next(array, currentItem) {
         // function tp prevent index out of bounds. If next is called on last item, the first will be returned
+
         var itemIndex = array.findIndex(function (element) {
           return element === currentItem;
         });
@@ -1043,7 +980,6 @@ var Graphics = require('./graphics.js');
       }
     };
   }();
-
   module.exports = window.utils;
 })();
 

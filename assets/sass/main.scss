@@ -2,11 +2,11 @@
 // This project uses inverted triangle CSS architecture (https://www.xfive.co/blog/itcss-scalable-maintainable-css-architecture/)
 
 // global
-@import 'vars';
-@import 'mixins';
-@import 'elements';
-@import 'global';
+@use 'vars';
+@use 'mixins';
+@use 'elements';
+@use 'global';
 
-@import 'components/scene';
+@use 'components/scene';
 
-@import 'helpers';
+@use 'helpers';
