@@ -1,6 +1,8 @@
-const { Vector3 } = require('three');
+import * as THREE from 'three';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
+import gfx from '../graphics.js';
 
-module.exports = function() {
+export default function() {
 	
 	let message = document.querySelector('.message');
 	var pastData;
@@ -104,7 +106,8 @@ module.exports = function() {
 			let self = this;
 			let loader = new THREE.FontLoader();
 			let fontPath = '';
-			fontPath = 'assets/vendors/js/three.js/examples/fonts/helvetiker_regular.typeface.json';
+			// Use relative path for production build
+			fontPath = 'fonts/helvetiker_regular.typeface.json';
 
 			loader.load(fontPath, function(font) { // success event
 				
@@ -251,10 +254,10 @@ module.exports = function() {
 			scene.add(right);
 			
 			let white = 0xffffff;
-			bottomLeft = new Vector3(-size/2, 0, -size/2), nearestCorner = new Vector3(-size/2, 0, size/2);
-			gfx.drawLineFromPoints(bottomLeft, new Vector3(-size/2, size, -size/2), white, .5);
-			gfx.drawLineFromPoints(bottomLeft, new Vector3(-size/2, 0, size/2), white, .5);
-			gfx.drawLineFromPoints(new Vector3(-size/2, 0, size/2), new Vector3(size/2, 0, size/2), white, .5);
+			bottomLeft = new THREE.Vector3(-size/2, 0, -size/2), nearestCorner = new THREE.Vector3(-size/2, 0, size/2);
+			gfx.drawLineFromPoints(bottomLeft, new THREE.Vector3(-size/2, size, -size/2), white, .5);
+			gfx.drawLineFromPoints(bottomLeft, new THREE.Vector3(-size/2, 0, size/2), white, .5);
+			gfx.drawLineFromPoints(new THREE.Vector3(-size/2, 0, size/2), new THREE.Vector3(size/2, 0, size/2), white, .5);
 
 			scene.background = worldColor;
 			//scene.fog = new THREE.FogExp2(new THREE.Color('black'), 0.002);
@@ -265,7 +268,7 @@ module.exports = function() {
 		bubbleChart: function() {
 			
 			let self = this;
-			d3.csv('./assets/data/whiskeys.csv', self.preprocessWhiskey).then(function(dataset) {
+			d3.csv('./data/whiskeys.csv', self.preprocessWhiskey).then(function(dataset) {
 
 				let maxRadius = 6.5;
 				
@@ -317,7 +320,7 @@ module.exports = function() {
 				// title.quaternion.copy(camera.quaternion);
 				// title.position.set(titlePos.x, titlePos.y, titlePos.z);
 				
-				let titlePos = new Vector3(0, settings.gridSize + 6, -settings.gridSize/2);
+				let titlePos = new THREE.Vector3(0, settings.gridSize + 6, -settings.gridSize/2);
 				let title = gfx.labelLarge(titlePos, 'Distilling Whiskey Ratings', white);
 				
 				self.addLegend();
@@ -329,23 +332,23 @@ module.exports = function() {
 		
 		addLegend: function() {
 			
-			let zOffset = new Vector3(0, 0, 15);
+			let zOffset = new THREE.Vector3(0, 0, 15);
 			
-			let usLabelPosition = new Vector3(settings.gridSize/2, 10, settings.gridSize/2).add(zOffset);
-			let usLabel = gfx.labelLarge(usLabelPosition, 'US', white, new Vector3(0, -Math.PI/2));
+			let usLabelPosition = new THREE.Vector3(settings.gridSize/2, 10, settings.gridSize/2).add(zOffset);
+			let usLabel = gfx.labelLarge(usLabelPosition, 'US', white, new THREE.Vector3(0, -Math.PI/2));
 			let textGeometry = usLabel.geometry;
 			textGeometry.computeBoundingBox();
 			let textWidth = textGeometry.boundingBox.max.z - textGeometry.boundingBox.min.z;
-			let translation = new Vector3(0, 0, 1).multiplyScalar(textWidth / 2);
+			let translation = new THREE.Vector3(0, 0, 1).multiplyScalar(textWidth / 2);
 			usLabel.position.add(translation);
 			usLabelPosition.add(translation);
 			
-			let scotlandLabelPosition = new Vector3(settings.gridSize/2, 0, settings.gridSize/2).add(zOffset);
-			let scotlandLabel = gfx.labelLarge(scotlandLabelPosition, 'Scotland', white, new Vector3(0, -Math.PI/2));
+			let scotlandLabelPosition = new THREE.Vector3(settings.gridSize/2, 0, settings.gridSize/2).add(zOffset);
+			let scotlandLabel = gfx.labelLarge(scotlandLabelPosition, 'Scotland', white, new THREE.Vector3(0, -Math.PI/2));
 			textGeometry = scotlandLabel.geometry;
 			textGeometry.computeBoundingBox();
 			textWidth = textGeometry.boundingBox.max.z - textGeometry.boundingBox.min.z;
-			translation = new Vector3(0, 0, 1).multiplyScalar(textWidth / 2);
+			translation = new THREE.Vector3(0, 0, 1).multiplyScalar(textWidth / 2);
 			scotlandLabel.position.add(translation);
 			scotlandLabelPosition.add(translation);
 			
@@ -358,7 +361,7 @@ module.exports = function() {
 			});
 			
 			let scotlandSphere = new THREE.Mesh(geometry, material);
-			let spherePos = new Vector3(settings.gridSize/2, radius/2, settings.gridSize/2 + 10);
+			let spherePos = new THREE.Vector3(settings.gridSize/2, radius/2, settings.gridSize/2 + 10);
 			
 			scotlandSphere.position.set(spherePos.x, spherePos.y, spherePos.z);
 			scene.add(scotlandSphere);
@@ -383,7 +386,7 @@ module.exports = function() {
 			let length = settings.gridSize;
 			let interval = length/count;
 			let tickLength = settings.axes.tickLength;
-			let tick = new Vector3(-tickLength, 0, 0), tickRight = new Vector3(0, 0, tickLength);
+			let tick = new THREE.Vector3(-tickLength, 0, 0), tickRight = new THREE.Vector3(0, 0, tickLength);
 			
 			let axisLabelOffset = -6;
 			let charWidth = settings.gridSize/50;
@@ -391,62 +394,62 @@ module.exports = function() {
 			if (axis === 'x') {
 				
 				for (let i = 0; i < count + 1; i += 2) {
-					let tickOrigin = gfx.movePoint(nearestCorner, new Vector3(i*interval, 0, 0));
+					let tickOrigin = gfx.movePoint(nearestCorner, new THREE.Vector3(i*interval, 0, 0));
 					gfx.drawLine(tickOrigin, tickRight);
 					let label = (((max - min) / 20) * i) + min;
 					if (label > 1000000) label = label.toExponential();
 					label = Math.round(label).toString();
-					let offset = new Vector3(-.6, -1, (interval/100)*(label.length) + 2);
-					gfx.labelPoint(gfx.movePoint(tickOrigin, offset), label, settings.axes.color, new Vector3(0, 0, 0));
+					let offset = new THREE.Vector3(-.6, -1, (interval/100)*(label.length) + 2);
+					gfx.labelPoint(gfx.movePoint(tickOrigin, offset), label, settings.axes.color, new THREE.Vector3(0, 0, 0));
 				}
-				gfx.labelLarge(new Vector3(0, axisLabelOffset, settings.gridSize/2 - axisLabelOffset), label, settings.axes.color);
+				gfx.labelLarge(new THREE.Vector3(0, axisLabelOffset, settings.gridSize/2 - axisLabelOffset), label, settings.axes.color);
 			}
 			else if (axis === 'y') {
 				
 				for (let i = 0; i < count + 1; i += 2) {
-					let tickOrigin = gfx.movePoint(bottomLeft, new Vector3(0, i*interval, 0));
+					let tickOrigin = gfx.movePoint(bottomLeft, new THREE.Vector3(0, i*interval, 0));
 					gfx.drawLine(tickOrigin, tick);
 					let label = (((max - min) / 20) * i) + min;
 					if (label > 1000000) label = label.toExponential();
 					label = Math.round(label).toString();
-					let offset = new Vector3(-(interval/4)*(label.length+1) , -1, 0);
+					let offset = new THREE.Vector3(-(interval/4)*(label.length+1) , -1, 0);
 					gfx.labelPoint(gfx.movePoint(tickOrigin, offset), label, settings.axes.color);
 				}
-				let yAxisLabel = gfx.labelLarge(new Vector3(-settings.gridSize/2, settings.gridSize/2, -settings.gridSize/2), label, 0xffffff);
+				let yAxisLabel = gfx.labelLarge(new THREE.Vector3(-settings.gridSize/2, settings.gridSize/2, -settings.gridSize/2), label, 0xffffff);
 				let textGeometry = yAxisLabel.geometry;
 				textGeometry.computeBoundingBox();
-				let translation = new Vector3(-1, 0, 0).multiplyScalar((textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x)).add(new Vector3(axisLabelOffset, 0, 0));
+				let translation = new THREE.Vector3(-1, 0, 0).multiplyScalar((textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x)).add(new THREE.Vector3(axisLabelOffset, 0, 0));
 				yAxisLabel.position.add(translation);
 			}
 			else if (axis === 'z') {
 				
 				for (let i = 2; i < count + 1; i += 2) {
-					let tickOrigin = gfx.movePoint(bottomLeft, new Vector3(0, 0, i*interval));
+					let tickOrigin = gfx.movePoint(bottomLeft, new THREE.Vector3(0, 0, i*interval));
 					gfx.drawLine(tickOrigin, tick);
 					let label = (((max - min) / 20) * i) + min;
 					if (label > 1000000) label = label.toExponential();
 					label = preUnit + Math.round(label).toString() + postUnit;
-					let offset = new Vector3(-(interval/8)*(label.length+1) - 3, -1, 0);
+					let offset = new THREE.Vector3(-(interval/8)*(label.length+1) - 3, -1, 0);
 					gfx.labelPoint(gfx.movePoint(tickOrigin, offset), label, settings.axes.color);
 				}
-				gfx.labelLarge(new Vector3(-settings.gridSize/2 + axisLabelOffset, axisLabelOffset, 0), label, settings.axes.color, new Vector3(0, -Math.PI / 2, 0));
+				gfx.labelLarge(new THREE.Vector3(-settings.gridSize/2 + axisLabelOffset, axisLabelOffset, 0), label, settings.axes.color, new THREE.Vector3(0, -Math.PI / 2, 0));
 			}
 		},
 		
 		placeLabel: function(mesh) {
-			let line = new Vector3(0, 10, 0);
+			let line = new THREE.Vector3(0, 10, 0);
 			let padding = .5;
-			let offset = mesh.position.clone().add(new Vector3(0, mesh.geometry.parameters.radius + padding, 0));
+			let offset = mesh.position.clone().add(new THREE.Vector3(0, mesh.geometry.parameters.radius + padding, 0));
 			let lineMesh = gfx.drawLine(offset, line, white, .75);
 			
-			let labelOrigin = gfx.movePoint(mesh.position, line.clone().add(new Vector3(0, padding, 0)));
-			let nameLabel = gfx.labelPoint(new Vector3(0, 0, 0), mesh.label, settings.axes.color);
+			let labelOrigin = gfx.movePoint(mesh.position, line.clone().add(new THREE.Vector3(0, padding, 0)));
+			let nameLabel = gfx.labelPoint(new THREE.Vector3(0, 0, 0), mesh.label, settings.axes.color);
 			nameLabel.position.set(labelOrigin.x, labelOrigin.y, labelOrigin.z);
 			
 			nameLabel.geometry.computeBoundingBox(); // center align text
-			let translation = new Vector3(-1, 0, 0).multiplyScalar((nameLabel.geometry.boundingBox.max.x - nameLabel.geometry.boundingBox.min.x) / 2).add(new Vector3(0, padding * 2 + mesh.geometry.parameters.radius, 0));
+			let translation = new THREE.Vector3(-1, 0, 0).multiplyScalar((nameLabel.geometry.boundingBox.max.x - nameLabel.geometry.boundingBox.min.x) / 2).add(new THREE.Vector3(0, padding * 2 + mesh.geometry.parameters.radius, 0));
 			nameLabel.geometry.translate(translation.x, translation.y, translation.z);
-			labelOrigin.add(new Vector3(0, translation.y, 0));
+			labelOrigin.add(new THREE.Vector3(0, translation.y, 0));
 			
 			mesh.label = nameLabel;
 			mesh.line = lineMesh;

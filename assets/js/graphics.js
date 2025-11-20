@@ -1,11 +1,15 @@
-const { Vector3 } = require("three");
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import utils from './utils.js';
+// Also set on window for backward compatibility
+if (!window.utils) {
+	window.utils = utils;
+}
 
-(function () {
+var appSettings;
+var scene;
 
-	var appSettings;
-	var scene;
-	
-	window.gfx = (function() {
+const gfx = (function() {
 		
 		return {
 
@@ -38,23 +42,23 @@ const { Vector3 } = require("three");
 
 			activateAxesHelper: function() {
 				let self = this;
-				gfx.appSettings.axesHelper.axes = new THREE.AxesHelper(gfx.appSettings.axesHelper.axisLength);
-				scene.add(gfx.appSettings.axesHelper.axes);
+				self.appSettings.axesHelper.axes = new THREE.AxesHelper(self.appSettings.axesHelper.axisLength);
+				scene.add(self.appSettings.axesHelper.axes);
 				self.labelAxesHelper();
 			},
 			
 			toggleAxesHelper: function() {
 				let self = this;
-				if (gfx.appSettings.axesHelper.active) {
-					scene.remove(gfx.appSettings.axesHelper.axes);
-					gfx.appSettings.axesHelper.labels.forEach(function(label) {
+				if (self.appSettings.axesHelper.active) {
+					scene.remove(self.appSettings.axesHelper.axes);
+					self.appSettings.axesHelper.labels.forEach(function(label) {
 						scene.remove(label);
 					});
 				}
 				else {
 					self.activateAxesHelper();
 				}
-				gfx.appSettings.axesHelper.active = !gfx.appSettings.axesHelper.active;
+				self.appSettings.axesHelper.active = !self.appSettings.axesHelper.active;
 			},
 
 			activateLightHelpers: function(lights) {
@@ -93,11 +97,12 @@ const { Vector3 } = require("three");
 				midpoint.z /= geometry.vertices.length;
 				
 				let sorted = geometry.clone();
+				let gfxSelf = this;
 				sorted.vertices.forEach(function(vertex) {
 					
-					let vec = gfx.createVector(midpoint, vertex);
-					let vecNext = gfx.createVector(midpoint, utils.next(sorted.vertices, vertex));
-					let angle = gfx.getAngleBetweenVectors(vec, vecNext);
+					let vec = gfxSelf.createVector(midpoint, vertex);
+					let vecNext = gfxSelf.createVector(midpoint, utils.next(sorted.vertices, vertex));
+					let angle = gfxSelf.getAngleBetweenVectors(vec, vecNext);
 					vertex.angle = angle;
 				});
 				
@@ -141,8 +146,8 @@ const { Vector3 } = require("three");
 			
 			isRightTurn: function(startingPoint, turningPoint, endingPoint) { // This might only work if vectors are flat on the ground since I am using y-component to determine sign
 
-				let segment1 = gfx.createVector(startingPoint, turningPoint);
-				let segment2 = gfx.createVector(turningPoint, endingPoint);
+				let segment1 = this.createVector(startingPoint, turningPoint);
+				let segment2 = this.createVector(turningPoint, endingPoint);
 	
 				let result = new THREE.Vector3();
 				result.crossVectors(segment1, segment2);
@@ -155,9 +160,9 @@ const { Vector3 } = require("three");
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color(0xf0f0f0);
 	
-				if (gfx.appSettings.axesHelper.active) {
+				if (this.appSettings.axesHelper.active) {
 	
-					gfx.activateAxesHelper();
+					this.activateAxesHelper();
 				}
 				return scene;
 			},
@@ -177,7 +182,7 @@ const { Vector3 } = require("three");
 			showPoints: function(geometry, color, opacity) {
 			
 				for (let i = 0; i < geometry.vertices.length; i++) {
-					gfx.showPoint(geometry.vertices[i], color, opacity);
+					this.showPoint(geometry.vertices[i], color, opacity);
 				}
 			},
 
@@ -208,13 +213,13 @@ const { Vector3 } = require("three");
 					scene.add(arrowHelper);
 				}
 				else {
-					gfx.showPoint(origin, color);
+					this.showPoint(origin, color);
 				}
 				return arrowHelper;
 			},
 			
 			updateArrow: function(arrow, origin, newDirection) {
-				let direction = gfx.createVector(origin, newDirection);
+				let direction = this.createVector(origin, newDirection);
 				arrow.setDirection(direction);
 				arrow.setLength(direction.length()); // Why?
 				return arrow;
@@ -224,7 +229,7 @@ const { Vector3 } = require("three");
 			labelPoint: function(pt, label, color, rotation) {
 				rotation = rotation || new THREE.Vector3(0, 0, 0);
 				let self = this;
-				if (gfx.appSettings.font.enable) {
+				if (self.appSettings.font.enable) {
 					color = color || 0xff0000;
 					let textGeometry = new THREE.TextGeometry(label, self.appSettings.font.smallFont);
 					let textMaterial = new THREE.MeshBasicMaterial({ color: color });
@@ -239,15 +244,15 @@ const { Vector3 } = require("three");
 			labelLarge: function(pt, label, color, rotation) {
 				rotation = rotation || new THREE.Vector3(0, 0, 0);
 				let self = this;
-				if (gfx.appSettings.font.enable) {
+				if (self.appSettings.font.enable) {
 					color = color || 0xff0000;
 					let textGeometry = new THREE.TextGeometry(label, self.appSettings.font.largeFont);
 					let textMaterial = new THREE.MeshBasicMaterial({ color: color });
 					let mesh = new THREE.Mesh(textGeometry, textMaterial);
 					
-					textGeometry.computeBoundingBox(); // center align text
-					let translation = new Vector3(-1, 0, 0).multiplyScalar((textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x) / 2);
-					translation.applyAxisAngle(new Vector3(0, 1, 0), rotation.y);
+				textGeometry.computeBoundingBox(); // center align text
+				let translation = new THREE.Vector3(-1, 0, 0).multiplyScalar((textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x) / 2);
+				translation.applyAxisAngle(new THREE.Vector3(0, 1, 0), rotation.y);
 					
 					textGeometry.rotateX(rotation.x); textGeometry.rotateY(rotation.y); textGeometry.rotateZ(rotation.z);
 					textGeometry.translate(pt.x + translation.x, pt.y + translation.y, pt.z + translation.z);
@@ -268,7 +273,7 @@ const { Vector3 } = require("three");
 				});
 				let geometry = new THREE.Geometry();
 				geometry.vertices.push(origin);
-				geometry.vertices.push(gfx.movePoint(origin, vector));
+				geometry.vertices.push(this.movePoint(origin, vector));
 				
 				let line = new THREE.Line(geometry, material);
 				scene.add(line);
@@ -304,29 +309,29 @@ const { Vector3 } = require("three");
 
 			labelAxesHelper: function() {
 				let self = this;
-				if (gfx.appSettings.font.enable) {
-					gfx.appSettings.axesHelper.labels = [];
-					let textGeometry = new THREE.TextGeometry('Y', gfx.appSettings.font.largeFont);
+				if (self.appSettings.font.enable) {
+					self.appSettings.axesHelper.labels = [];
+					let textGeometry = new THREE.TextGeometry('Y', self.appSettings.font.largeFont);
 					let textMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 					let mesh = new THREE.Mesh(textGeometry, textMaterial);
 					
-					textGeometry.translate(0, gfx.appSettings.axesHelper.axisLength, 0);
+					textGeometry.translate(0, self.appSettings.axesHelper.axisLength, 0);
 					scene.add(mesh);
-					gfx.appSettings.axesHelper.labels.push(mesh);
+					self.appSettings.axesHelper.labels.push(mesh);
 					
-					textGeometry = new THREE.TextGeometry('X', gfx.appSettings.font.largeFont);
+					textGeometry = new THREE.TextGeometry('X', self.appSettings.font.largeFont);
 					textMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 					mesh = new THREE.Mesh(textGeometry, textMaterial);
-					textGeometry.translate(gfx.appSettings.axesHelper.axisLength, 0, 0);
+					textGeometry.translate(self.appSettings.axesHelper.axisLength, 0, 0);
 					scene.add(mesh);
-					gfx.appSettings.axesHelper.labels.push(mesh);
+					self.appSettings.axesHelper.labels.push(mesh);
 					
-					textGeometry = new THREE.TextGeometry('Z', gfx.appSettings.font.largeFont);
+					textGeometry = new THREE.TextGeometry('Z', self.appSettings.font.largeFont);
 					textMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
 					mesh = new THREE.Mesh(textGeometry, textMaterial);
-					textGeometry.translate(0, 0, gfx.appSettings.axesHelper.axisLength);
+					textGeometry.translate(0, 0, self.appSettings.axesHelper.axisLength);
 					scene.add(mesh);
-					gfx.appSettings.axesHelper.labels.push(mesh);
+					self.appSettings.axesHelper.labels.push(mesh);
 				}
 			},
 
@@ -356,14 +361,14 @@ const { Vector3 } = require("three");
 					scene.remove(obj);
 				}
 				
-				gfx.addFloor();
+				self.addFloor();
 				scope.addTetrahedron();
-				gfx.setUpLights();
-				gfx.setCameraLocation(camera, self.settings.defaultCameraLocation);
+				self.setUpLights();
+				self.setCameraLocation(camera, self.settings.defaultCameraLocation);
 			},
 
 			enableControls: function(controls, renderer, camera) {
-				controls = new THREE.OrbitControls(camera, renderer.domElement);
+				controls = new OrbitControls(camera, renderer.domElement);
 				controls.target.set(0, 0, 0);
 				controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
 				controls.dampingFactor = 0.05;
@@ -396,8 +401,8 @@ const { Vector3 } = require("three");
 				scene.add(light2);
 				lights.push(light2)
 				
-				if (gfx.appSettings.activateLightHelpers) {
-					gfx.activateLightHelpers(lights);
+				if (this.appSettings.activateLightHelpers) {
+					this.activateLightHelpers(lights);
 				}
 			},
 			
@@ -443,7 +448,7 @@ const { Vector3 } = require("three");
 				});
 				
 				for (let i = 0; i < vertices.length; i++) {
-					angleSum += gfx.calculateAngle(geometry.vertices[i], pt, gfx.nextVertex(geometry.vertices[i], geometry));
+					angleSum += this.calculateAngle(geometry.vertices[i], pt, this.nextVertex(geometry.vertices[i], geometry));
 				}
 				
 				return angleSum === Math.PI * 2;
@@ -487,6 +492,5 @@ const { Vector3 } = require("three");
 			}
 		}
 	})();
-	
-	module.exports = window.gfx;
-})();
+window.gfx = gfx;
+export default gfx;
