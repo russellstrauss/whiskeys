@@ -1,7 +1,7 @@
 {
-  "name": "prototype",
+  "name": "whiskeys",
   "version": "1.0.0",
-  "description": "Demo Development Sandbox",
+  "description": "distilling whiskey ratings",
   "main": "index.js",
   "scripts": {
     "start": "webpack serve --mode development",
