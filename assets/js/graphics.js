@@ -369,7 +369,7 @@ const gfx = (function() {
 
 			enableControls: function(controls, renderer, camera) {
 				controls = new OrbitControls(camera, renderer.domElement);
-				controls.target.set(0, 0, 0);
+				controls.target.set(0, 50, 0);
 				controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
 				controls.dampingFactor = 0.05;
 				controls.zoomSpeed = 2;

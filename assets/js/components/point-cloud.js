@@ -8,9 +8,9 @@ export default function() {
 	var pastData;
 	var settings = {
 		defaultCameraLocation: {
-			x: -90,
-			y: 110,
-			z: 80
+			x: -100,
+			y: 50,
+			z: 100
 		},
 		messageDuration: 2000,
 		colors: {
