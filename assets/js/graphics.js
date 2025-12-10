@@ -289,7 +289,7 @@ const gfx = (function() {
 					color: color,
 					opacity: alpha,
 					transparent: true,
-					linewidth: 100,
+					linewidth: 1,
 					linecap: 'round', //ignored by WebGLRenderer
 					linejoin:  'round' //ignored by WebGLRenderer
 				});
