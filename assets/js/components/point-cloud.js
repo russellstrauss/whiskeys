@@ -164,16 +164,51 @@ export default function() {
 			});
 			
 			window.russells_magical_mouse = new THREE.Vector2();
+			
+			// Helper function to update mouse position from coordinates
+			let updateMousePosition = function(clientX, clientY) {
+				window.russells_magical_mouse.x = ( (clientX - renderer.domElement.offsetLeft) / renderer.domElement.width ) * 2 - 1;
+				window.russells_magical_mouse.y = -( (clientY - renderer.domElement.offsetTop) / renderer.domElement.height ) * 2 + 1;
+			};
+			
+			// Desktop: hover behavior with mousemove
 			let onMouseMove = function(event) {
-				window.russells_magical_mouse.x = ( (event.clientX - renderer.domElement.offsetLeft) / renderer.domElement.width ) * 2 - 1;
-				window.russells_magical_mouse.y = -( (event.clientY - renderer.domElement.offsetTop) / renderer.domElement.height ) * 2 + 1;
-				
+				updateMousePosition(event.clientX, event.clientY);
 				let hoveredItems = gfx.intersects(event, camera, targetList);
 				self.handleHovers(hoveredItems);
 			};
 			window.addEventListener('mousemove', onMouseMove, false);
 			
-			document.querySelector('canvas').addEventListener('click', function(event) {
+			// Mobile: touch behavior - show label on touch
+			let canvas = document.querySelector('canvas');
+			let onTouchStart = function(event) {
+				event.preventDefault(); // Prevent default touch behavior
+				let touch = event.touches[0];
+				updateMousePosition(touch.clientX, touch.clientY);
+				let hoveredItems = gfx.intersects(event, camera, targetList);
+				self.handleHovers(hoveredItems);
+			};
+			
+			let onTouchMove = function(event) {
+				event.preventDefault(); // Prevent default touch behavior
+				let touch = event.touches[0];
+				updateMousePosition(touch.clientX, touch.clientY);
+				let hoveredItems = gfx.intersects(event, camera, targetList);
+				self.handleHovers(hoveredItems);
+			};
+			
+			let onTouchEnd = function(event) {
+				// Hide labels when touch ends (user lifts finger)
+				self.hideAllBubbleLabels();
+			};
+			
+			// Add touch event listeners for mobile
+			canvas.addEventListener('touchstart', onTouchStart, false);
+			canvas.addEventListener('touchmove', onTouchMove, false);
+			canvas.addEventListener('touchend', onTouchEnd, false);
+			
+			// Keep existing click handler for desktop
+			canvas.addEventListener('click', function(event) {
 				let clickedItems = gfx.intersects(event, camera, targetList);
 				self.handleClicks(clickedItems);
 			});
