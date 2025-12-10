@@ -25,13 +25,13 @@ const gfx = (function() {
 					enable: true,
 					smallFont: {
 						font: null,
-						size: 1.5,
+						size: 2.5,
 						height: 0,
 						curveSegments: 1
 					},
 					largeFont: {
 						font: null,
-						size: 3,
+						size: 6,
 						height: 0,
 						curveSegments: 1
 					}
@@ -311,6 +311,7 @@ const gfx = (function() {
 				let self = this;
 				if (self.appSettings.font.enable) {
 					self.appSettings.axesHelper.labels = [];
+					
 					let textGeometry = new THREE.TextGeometry('Y', self.appSettings.font.largeFont);
 					let textMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 					let mesh = new THREE.Mesh(textGeometry, textMaterial);

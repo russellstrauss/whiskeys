@@ -113,6 +113,10 @@ export default function() {
 				
 				gfx.appSettings.font.smallFont.font = font;
 				gfx.appSettings.font.largeFont.font = font;
+				// if (utils.mobile()) {
+				// 	gfx.appSettings.font.smallFont = 5;
+				// 	gfx.appSettings.font.largeFont = 5;
+				// }
 				self.begin();
 				if (gfx.appSettings.axesHelper.activateAxesHelper) gfx.labelAxesHelper();
 			},
@@ -314,11 +318,6 @@ export default function() {
 					bubbles.push(sphere);
 					scene.add(sphere);
 				});
-				
-				// let titlePos = new Vector3(settings.gridSize/2 * 1.1, settings.gridSize * 1.1, -settings.gridSize/2 * 1.1);
-				// let title = gfx.labelLarge(new Vector3(0, 0, 0), 'Distilling Whiskey Ratings', white);
-				// title.quaternion.copy(camera.quaternion);
-				// title.position.set(titlePos.x, titlePos.y, titlePos.z);
 				
 				let titlePos = new THREE.Vector3(0, settings.gridSize + 6, -settings.gridSize/2);
 				let title = gfx.labelLarge(titlePos, 'Distilling Whiskey Ratings', white);
